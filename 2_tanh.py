@@ -29,7 +29,7 @@ def main():
     alfa=0.02
     epochs=0
     lim_epochs=10000
-    precision=0.0000001
+    precision=0.00000001
     error_total_and=[precision+1]
     error_total_or=[precision+1]
     
@@ -121,9 +121,15 @@ def main():
     print(f'Pesos finales OR {w_or}')
 
     plt.plot(error_total_and[1:28],marker='o')
+    plt.title("AND")
+    plt.xlabel("Época")
+    plt.ylabel("Costo")
     plt.show()
 
     plt.plot(error_total_or[1:28],marker='8',color="red")
+    plt.title("OR")
+    plt.xlabel("Época")
+    plt.ylabel("Costo")
     plt.show()
     
     #pesos al final de la corrida error/lim epochs
