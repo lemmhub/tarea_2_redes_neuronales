@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 def main():
     #Leer datos
@@ -13,6 +14,7 @@ def main():
     #Parámetros e hiperparámetros
     np.random.seed(20)
     w=np.random.randn(x.shape[1],1) #variables,neuronas
+
     alfa=0.02
     epochs=0
     lim_epochs=100000
@@ -40,7 +42,10 @@ def main():
         
     print(f'Error final {error_total[-1]}')
     plt.plot(error_total[1:28],marker='o')
+    plt.xlabel("Época")
+    plt.ylabel("Costo")
     plt.show()
+   
     print(f'Pesos finales {w.T}')
     print(f'Épocas {epochs}')
     return w
@@ -54,8 +59,12 @@ def probar_pesos(w):
     y=y.reshape(y.shape[0],1)
     y_hat = np.dot(x,w)
 
+    valores_tabulate=[]
     for i in range(len(y_hat)):
-        print (f'Predicción {y_hat[i,0]} Etiqueta {y[i,0]} error abs {np.abs(y_hat[i,0]-y[i,0])}')
+        valores_tabulate.append([y_hat[i,0],y[i,0],np.abs(y_hat[i,0]-y[i,0])])
+
+    print(tabulate(valores_tabulate,headers=["Predicción", "Etiqueta", "Error Absoluto"]))
+
 
 
 if __name__ == '__main__':
