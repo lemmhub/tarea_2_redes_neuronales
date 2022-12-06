@@ -3,42 +3,17 @@ import pandas as pd
 from tabulate import tabulate
 
 def main():
-
  #Leer datos
-    matriz_cuad_size=35
-    datos = pd.read_csv("3_patrones.csv")
-    datos_py = np.array(datos)
-    #modificar 0 por -1
-    datos_py[datos_py==0]=-1
-    datos_py = datos_py.ravel('F')
-    datos_py=datos_py[~np.isnan(datos_py)]         
-
-    #Separando datos
-    X=[]
-    for i in range(5):
-        X.append(np.array([datos_py.ravel('F')[matriz_cuad_size*i:matriz_cuad_size*(i+1)]]))
-    #Se trajo como columnas, entonces buscamos ese orden (5,7)
-    #para imprimir se regresa la transpuesta
-    #print(X[1].reshape(5,7).T)
-    
-    #Generando la matriz de Hopfield
-    M_Hopfield=generar_Hopfield(X)
-    table=tabulate(M_Hopfield,headers=[ i for i in  range(matriz_cuad_size)])
-    print(table)
-
-    #Fase de recuperación
-    recuperar(M_Hopfield,X)
-     
-    #prueba Sossa
     a=np.array([[1,-1,-1,1]])
     b=np.array([[-1,1,-1,1]])
     c=np.array([[-1.,-1,1,-1]])
     arreglo=[a,b,c]
     hop =generar_Hopfield(arreglo)
-    print(hop)
-    recuperar(hop,arreglo)
-    #sí jala
-    
+
+    table=tabulate(hop,headers=[ i for i in  range(hop.shape[0])])
+    print(table)
+
+    recuperar(hop,arreglo)    
 
 def generar_Hopfield(patrones):
     hopfield=np.zeros(patrones[0].shape[1])
