@@ -41,16 +41,6 @@ def main():
     df.columns=["Pixeles con ruido","Iter. Patrón 1","Iter. Patrón 2","Iter. Patrón 3","Iter. Patrón 4","Iter. Patrón 5"]
     print(df)
 
-    #Modificación patrones
-    a=np.array([[1,-1,-1,1]])
-    b=np.array([[-1,1,-1,1]])
-    c=np.array([[-1.,-1,1,-1]])
-    arreglo=[a,b,c]
-    viejo=np.copy(arreglo)
-    for i in range(1,5):
-        nuevo,viejo=agregar_ruido(viejo,i)
-        #print(f"i: {i} ** N {nuevo}, ** V {viejo}")
-
 def generar_Hopfield(patrones):
     hopfield=np.zeros(patrones[0].shape[1])
     for patron in patrones:
@@ -87,8 +77,6 @@ def agregar_ruido(patrones,pixeles):
         patron[0][indices]=patron[0][indices]*-1
         
     return patrones,patrones_old
-
-
 
 if __name__ == '__main__':
     main()
