@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
+import pandas as pd
 
 def main():
-
+    tabla_recup=[ ]
  #Leer datos
     matriz_cuad_size=35
     datos = pd.read_csv("3_patrones.csv")
@@ -27,18 +28,28 @@ def main():
     print(table)
 
     #Fase de recuperación
-    recuperar(M_Hopfield,X)
+    tabla_recup.append(recuperar(M_Hopfield,X))
      
-    #prueba Sossa
+    #Modificar patrones
+    X_old=np.copy(X)
+    for i in range(1,6):
+        X_new,X_old=agregar_ruido(X_old,i)
+        print(f"Modificando {i} pixeles: ************************")
+        tabla_recup.append(recuperar(M_Hopfield,X_new))
+    
+    df=pd.DataFrame( [index]+i for index,i in enumerate(tabla_recup) )
+    df.columns=["Pixeles con ruido","Iter. Patrón 1","Iter. Patrón 2","Iter. Patrón 3","Iter. Patrón 4","Iter. Patrón 5"]
+    print(df)
+
+    #Modificación patrones
     a=np.array([[1,-1,-1,1]])
     b=np.array([[-1,1,-1,1]])
     c=np.array([[-1.,-1,1,-1]])
     arreglo=[a,b,c]
-    hop =generar_Hopfield(arreglo)
-    print(hop)
-    recuperar(hop,arreglo)
-    #sí jala
-    
+    viejo=np.copy(arreglo)
+    for i in range(1,5):
+        nuevo,viejo=agregar_ruido(viejo,i)
+        #print(f"i: {i} ** N {nuevo}, ** V {viejo}")
 
 def generar_Hopfield(patrones):
     hopfield=np.zeros(patrones[0].shape[1])
@@ -48,6 +59,7 @@ def generar_Hopfield(patrones):
 
 
 def recuperar(Matriz,Patrones):
+    iteraciones_recup=[]
     for index,patron in enumerate(Patrones):
         recuperado=False
         iter=0
@@ -59,7 +71,24 @@ def recuperar(Matriz,Patrones):
             if np.array_equal(patron,patron_salida.T):
                 print(f"Se recuperó el patrón {index} en la iteración {iter}")
                 recuperado=True
+                iteraciones_recup.append(iter)
             patron=patron_salida.T
+    return iteraciones_recup
+
+def agregar_ruido(patrones,pixeles):
+    patrones_old=np.copy(patrones)
+    #Generador
+    rng=np.random.default_rng()
+    for patron in patrones:
+        if patron.shape[1]<pixeles:
+            print("El número de pixeles excede el tamaño del patrón")
+            return
+        indices=rng.choice(patron.shape[1],size=pixeles, replace=False)
+        patron[0][indices]=patron[0][indices]*-1
+        
+    return patrones,patrones_old
+
+
 
 if __name__ == '__main__':
     main()

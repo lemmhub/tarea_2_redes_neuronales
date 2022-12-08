@@ -59,21 +59,18 @@ def main():
             a_and = np.dot(x[i,:],w_and.T)
             a_or = np.dot(x[i,:],w_or.T)
 
-            y_hat_and = np.tanh(a_and)
-            y_hat_or = np.tanh(a_or)       
+            #Implementación Relu
+            y_hat_and = np.maximum(0,a_and)
+            y_hat_or = np.maximum(0,a_or)       
             
             #obtener delta
             delta_and = y_hat_and - y_and[i]
-            delta_or = y_hat_or - y_or[i]     
-            
+            delta_or = y_hat_or - y_or[i]            
 
             #Gradiente por pesos
-            grad_and= delta_and*(1-(y_hat_and**2))*x[i,:]
-            grad_or= delta_or*(1-(y_hat_or**2))*x[i,:]
+            grad_and = delta_and*x[i,:] if y_hat_and>0 else np.zeros((3))
+            grad_or = delta_or*x[i,:] if y_hat_or>0 else np.zeros((3))            
             #modificar los pesos incluyendo alfa
-            #print(f'grad_and {grad_and}')
-            print(f'grad: {grad_or}')     
-
             grad_and = -grad_and*alfa
             grad_or = - grad_or*alfa
 
@@ -122,16 +119,31 @@ def main():
     print(f'Error final caso OR {error_total_or[-1]}')
     print(f'Pesos finales OR {w_or}')
 
-    plt.plot(error_total_and[1:28],marker='o')
+    plt.plot(error_total_and[1:28],marker='o')    
     plt.title("AND")
     plt.xlabel("Época")
     plt.ylabel("Costo")
     plt.show()
 
+    #Estabilidad por nulo cambio en el gradiente
+    plt.plot(error_total_and[1:])
+    plt.title("AND")
+    plt.xlabel("Época")
+    plt.ylabel("Costo estable por nulo cambio en grad")
+    plt.show()
+
+
     plt.plot(error_total_or[1:28],marker='8',color="red")
     plt.title("OR")
     plt.xlabel("Época")
     plt.ylabel("Costo")
+    plt.show()
+
+    #Estabilidad
+    plt.plot(error_total_or[1:],color="red")
+    plt.title("OR")
+    plt.xlabel("Época")
+    plt.ylabel("Costo estable por nulo cambio en grad")
     plt.show()
     
     #pesos al final de la corrida error/lim epochs
@@ -207,7 +219,7 @@ def crear_gif(w,x,caso):
         imagenes.append(f'{caso}{index}.png')
         plt.close()
 
-    with imageio.get_writer(f'{caso}gif.gif', mode='I') as writer:
+    with imageio.get_writer(f'{caso}gif_relu.gif', mode='I') as writer:
         print(f"Creando GIF {caso} ")
         for imagen in tqdm(imagenes):
             image = imageio.imread(imagen)
@@ -216,7 +228,6 @@ def crear_gif(w,x,caso):
     #eliminamos       
     for filename in set(imagenes):
         os.remove(filename)
-
 
 if __name__ == '__main__':
     main()
