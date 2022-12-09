@@ -12,7 +12,7 @@ def main():
     #modificar 0 por -1
     datos_py[datos_py==0]=-1
     datos_py = datos_py.ravel('F')
-    datos_py=datos_py[~np.isnan(datos_py)]         
+    datos_py=datos_py[~np.isnan(datos_py)]      
 
     #Separando datos
     X=[]
@@ -28,14 +28,21 @@ def main():
     print(table)
 
     #Fase de recuperación
+    #Recuperando original
+    #tabla_recup.append(recuperar(M_Hopfield,X,X))
+    #Convergencia con el anterior
     tabla_recup.append(recuperar(M_Hopfield,X))
-     
+
     #Modificar patrones
     X_old=np.copy(X)
     for i in range(1,6):
         X_new,X_old=agregar_ruido(X_old,i)
         print(f"Modificando {i} pixeles: ************************")
+    #Recuperando original
+        #tabla_recup.append(recuperar(M_Hopfield,X_new,X_old))
+        #Convergencia con el anterior
         tabla_recup.append(recuperar(M_Hopfield,X_new))
+
     
     df=pd.DataFrame( [index]+i for index,i in enumerate(tabla_recup) )
     df.columns=["Pixeles con ruido","Iter. Patrón 1","Iter. Patrón 2","Iter. Patrón 3","Iter. Patrón 4","Iter. Patrón 5"]
@@ -48,21 +55,35 @@ def generar_Hopfield(patrones):
     return hopfield
 
 
-def recuperar(Matriz,Patrones):
+
+def recuperar(Matriz,Patrones,patron_comparar=0):
+    iter_max_recup=100000
     iteraciones_recup=[]
     for index,patron in enumerate(Patrones):
         recuperado=False
         iter=0
-        while not recuperado:
+        while not recuperado and iter<iter_max_recup:
             iter+=1
             patron_salida=np.dot(Matriz,patron.T)
             #Cambiamos valores de acuerdo a las condiciones
             patron_salida=np.where(patron_salida > 0,1,np.where(patron_salida<0,-1,0))
-            if np.array_equal(patron,patron_salida.T):
-                print(f"Se recuperó el patrón {index} en la iteración {iter}")
-                recuperado=True
-                iteraciones_recup.append(iter)
+            #Revisamos si comparamos con el original o con el anterior inmediato
+            if patron_comparar==0:
+                if np.array_equal(patron,patron_salida.T):
+                    print(f"Se recuperó el patrón {index} en la iteración {iter}")
+                    recuperado=True
+                    iteraciones_recup.append(iter)
+            else:
+                if np.array_equal(patron_comparar[index],patron_salida.T):
+                    print(f"Se recuperó el patrón {index} en la iteración {iter}")
+                    recuperado=True
+                    iteraciones_recup.append(iter)
+
             patron=patron_salida.T
+            if iter==iter_max_recup and not recuperado:
+                print(f"No se recuperó el patrón {index}")
+                iteraciones_recup.append("No recup")
+
     return iteraciones_recup
 
 def agregar_ruido(patrones,pixeles):
